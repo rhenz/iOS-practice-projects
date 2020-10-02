@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class WeatherViewController: UIViewController {
    
@@ -17,17 +18,28 @@ class WeatherViewController: UIViewController {
    @IBOutlet weak var searchTextField: UITextField!
    
    let weatherLoader = WeatherLoader()
+   let locationManager = CLLocationManager()
    
    // MARK: - View Life Cycle
    override func viewDidLoad() {
       super.viewDidLoad()
+      
+      // Set textfield delegate
       searchTextField.delegate = self
+      
+      // Ask for location permission
+      locationManager.delegate = self
+      locationManager.requestWhenInUseAuthorization()
    }
    
+   override func viewDidAppear(_ animated: Bool) {
+      super.viewDidAppear(animated)
+      locationManager.requestLocation()
+   }
    
    // MARK: - Helper Methods
-   private func fetchWeather(for city: String) {
-      weatherLoader.fetchWeather(cityName: city, completion: { [weak self] result in
+   private func fetchWeather(fetchType: FetchWeatherRequestType) {
+      weatherLoader.fetchWeather(fetchType: fetchType) { [weak self] result in
          guard let weakSelf = self else { return }
          switch result {
          case .success(let cityWeather):
@@ -38,11 +50,11 @@ class WeatherViewController: UIViewController {
          case .failure(let error):
             print("ERROR: \(error.localizedDescription)")
          }
-      })
+      }
    }
    
    private func updateUI(with weather: CityWeather) {
-      self.cityLabel.text = searchTextField.text ?? ""
+      self.cityLabel.text = weather.name
       self.temperatureLabel.text = "\(weather.main.temp)"
       self.conditionImageView.image = UIImage(systemName: weather.getWeatherConditionImageName())
    }
@@ -52,8 +64,12 @@ class WeatherViewController: UIViewController {
       searchTextField.endEditing(true)
       
       if let city = searchTextField.text, city != "" {
-         fetchWeather(for: city)
+         fetchWeather(fetchType: .cityName(city: city))
       }
+   }
+   
+   @IBAction func getLocationButtonPressed(_ sender: UIButton) {
+      locationManager.requestLocation()
    }
 }
 
@@ -65,17 +81,30 @@ extension WeatherViewController {
    }
 }
 
-
 // MARK: - TextField Delegate
 extension WeatherViewController: UITextFieldDelegate {
    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
       if textField == searchTextField, let text = textField.text, text != "" {
          // Handle text here
-         fetchWeather(for: text)
+         fetchWeather(fetchType: .cityName(city: text))
          textField.endEditing(true)
       }
       return true
    }
+}
+
+// MARK: - Location Manager
+extension WeatherViewController: CLLocationManagerDelegate {
+   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+      if let location = locations.last {
+         locationManager.stopUpdatingLocation()
+         let latitude = location.coordinate.latitude
+         let longitude = location.coordinate.longitude
+         fetchWeather(fetchType: .latLong(lat: latitude, long: longitude))
+      }
+   }
    
-   
+   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+      print("Failed Getting Location: \(error.localizedDescription)")
+   }
 }
