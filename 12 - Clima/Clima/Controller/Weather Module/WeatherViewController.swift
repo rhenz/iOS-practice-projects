@@ -100,7 +100,7 @@ extension WeatherViewController: CLLocationManagerDelegate {
          locationManager.stopUpdatingLocation()
          let latitude = location.coordinate.latitude
          let longitude = location.coordinate.longitude
-         fetchWeather(fetchType: .latLong(lat: latitude, long: longitude))
+         fetchWeather(fetchType: .geoLocation(lat: latitude, long: longitude))
       }
    }
    

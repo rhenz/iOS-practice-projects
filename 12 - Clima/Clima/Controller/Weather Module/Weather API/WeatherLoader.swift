@@ -15,24 +15,34 @@ enum WeatherResult {
 
 enum FetchWeatherRequestType {
    case cityName(city: String)
-   case latLong(lat: Double, long: Double)
+   case geoLocation(lat: Double, long: Double)
 }
 
 struct WeatherLoader {
-   let currentWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
-   let appId = "0986e1cead171e460c1cb63e7ea4286f"
+//   let currentWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
+   private let appId = "0986e1cead171e460c1cb63e7ea4286f"
+   private let scheme = "https"
+   private let host = "api.openweathermap.org"
+   private let path = "/data/2.5/weather"
    
    public func fetchWeather(fetchType: FetchWeatherRequestType, completion: @escaping (WeatherResult) -> Void) {
-      var urlString = currentWeatherURL
+      var urlQueryItems = [URLQueryItem]()
+      
       switch fetchType {
       case .cityName(let city):
-         urlString += "?q=\(city)&appid=\(appId)&units=metric"
-      case .latLong(let latitude, let longitude):
-         // api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
-         urlString += "?lat=\(latitude)&lon=\(longitude)&appid=\(appId)&units=metric"
+         urlQueryItems.append(URLQueryItem(name: "q", value: city))
+         urlQueryItems.append(URLQueryItem(name: "units", value: "metric"))
+         urlQueryItems.append(URLQueryItem(name: "appid", value: appId))
+         
+      case .geoLocation(let latitude, let longitude):
+         urlQueryItems.append(URLQueryItem(name: "lat", value: "\(latitude)"))
+         urlQueryItems.append(URLQueryItem(name: "lon", value: "\(longitude)"))
+         urlQueryItems.append(URLQueryItem(name: "units", value: "metric"))
+         urlQueryItems.append(URLQueryItem(name: "appid", value: appId))
       }
       
-      let url = URL(string: urlString)!
+      let url = getUrl(queryItems: urlQueryItems)
+      
       request(url: url, completion: completion)
    }
    
@@ -51,5 +61,19 @@ struct WeatherLoader {
             completion(.failure(err))
          }
       }.resume()
+   }
+   
+   private func getUrl(queryItems: [URLQueryItem]) -> URL {
+      var urlComponents = URLComponents()
+      urlComponents.scheme = scheme
+      urlComponents.host = host
+      urlComponents.path = path
+      urlComponents.queryItems = queryItems
+      
+      guard let url = urlComponents.url else {
+         fatalError("Could not create URL")
+      }
+      
+      return url
    }
 }
