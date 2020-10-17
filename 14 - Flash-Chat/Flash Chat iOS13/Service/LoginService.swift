@@ -29,4 +29,12 @@ class LoginService {
       }
    }
    
+   static public func logout(completion: @escaping (Error?) -> Void) {
+      do {
+         try Auth.auth().signOut()
+         completion(nil)
+      } catch let signOutError {
+         completion(signOutError)
+      }
+   }
 }

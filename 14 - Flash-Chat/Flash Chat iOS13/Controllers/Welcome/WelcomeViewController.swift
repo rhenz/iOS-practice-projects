@@ -11,6 +11,11 @@ class WelcomeViewController: UIViewController {
       setupView()
    }
    
+   override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      titleLabel.text = ""
+   }
+   
    override func viewDidAppear(_ animated: Bool) {
       super.viewDidAppear(animated)
       setupTitleAnimation()
@@ -20,8 +25,6 @@ class WelcomeViewController: UIViewController {
 // MARK: - Helper Methods
 extension WelcomeViewController {
    private func setupTitleAnimation() {
-      titleLabel.text = ""
-      
       var charIndex = 0.0
       let titleText = "⚡️FlashChat"
       for letter in titleText {
