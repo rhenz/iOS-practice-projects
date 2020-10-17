@@ -1,11 +1,3 @@
-//
-//  UIViewController+AlertController.swift
-//  Flash Chat iOS13
-//
-//  Created by Lawrence on 10/17/20.
-//  Copyright © 2020 Angela Yu. All rights reserved.
-//
-
 import UIKit
 
 extension UIViewController {
