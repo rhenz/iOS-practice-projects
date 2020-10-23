@@ -8,7 +8,6 @@ class WelcomeViewController: UIViewController {
    // MARK: - View Life Cycle
    override func viewDidLoad() {
       super.viewDidLoad()
-      setupView()
    }
    
    override func viewWillAppear(_ animated: Bool) {
@@ -26,16 +25,12 @@ class WelcomeViewController: UIViewController {
 extension WelcomeViewController {
    private func setupTitleAnimation() {
       var charIndex = 0.0
-      let titleText = "⚡️FlashChat"
+      let titleText = K.appName
       for letter in titleText {
          Timer.scheduledTimer(withTimeInterval: 0.1 * charIndex, repeats: false) { (timer) in
             self.titleLabel.text?.append(letter)
          }
          charIndex += 1
       }
-   }
-   
-   private func setupView() {
-      titleLabel.text = ""
    }
 }

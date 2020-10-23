@@ -1,5 +1,9 @@
 import UIKit
 
+fileprivate enum Segue {
+   static let toChatViewController = "LoginToChatSegue"
+}
+
 class LoginViewController: UIViewController {
    // MARK: - IBOutlets
    @IBOutlet weak var emailTextfield: UITextField!
@@ -17,11 +21,10 @@ class LoginViewController: UIViewController {
       loginService.loginUser { [weak self] (result) in
          switch result {
          case.success:
-            self?.performSegue(withIdentifier: "LoginToChatSegue", sender: self)
+            self?.performSegue(withIdentifier: Segue.toChatViewController, sender: self)
          case .failure(let error):
             self?.showErrorAlert(with: error)
          }
       }
    }
-   
 }

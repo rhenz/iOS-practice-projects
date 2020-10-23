@@ -1,5 +1,9 @@
 import UIKit
 
+fileprivate enum Segue {
+   static let toChatViewController = "RegisterToChatSegue"
+}
+
 class RegisterViewController: UIViewController {
    // MARK: - IBOutlets
    @IBOutlet weak var emailTextfield: UITextField!
@@ -17,7 +21,7 @@ class RegisterViewController: UIViewController {
       registerService.createUser { [weak self] (result) in
          switch result {
          case.success:
-            self?.performSegue(withIdentifier: "RegisterToChatSegue", sender: self)
+            self?.performSegue(withIdentifier: Segue.toChatViewController, sender: self)
          case .failure(let error):
             self?.showErrorAlert(with: error)
          }
