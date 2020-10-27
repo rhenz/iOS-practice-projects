@@ -39,13 +39,15 @@ class ChatViewController: UIViewController {
    }
    
    private func loadMessages() {
-      messages = []
-      db.collection(K.FStore.collectionName).getDocuments { (snapshot, error) in
+      db.collection(K.FStore.collectionName)
+         .order(by: K.FStore.dateField)
+         .addSnapshotListener { (snapshot, error) in
          if let error = error {
             print("Error Retrieving messages: \(error.localizedDescription)")
          } else {
             if let documents = snapshot?.documents {
                let parsedMessages = documents.map { Message(with: $0.data()) }.compactMap{ $0 }
+               self.messages.removeAll()
                self.messages = parsedMessages
             }
          }
@@ -60,7 +62,7 @@ class ChatViewController: UIViewController {
          return
       }
       
-      let message = [ K.FStore.senderField: sender, K.FStore.bodyField: messageBody]
+      let message = [K.FStore.senderField: sender, K.FStore.bodyField: messageBody, K.FStore.dateField: Date().timeIntervalSince1970] as [String : Any]
       db.collection(K.FStore.collectionName).addDocument(data: message) { (error) in
          if let error = error {
             print("There was an error in saving data to firestore: \(error.localizedDescription)")
