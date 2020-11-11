@@ -12,7 +12,8 @@ class MessageCell: UITableViewCell {
    // MARK: - IBOutlets
    @IBOutlet weak var messageBubble: UIView!
    @IBOutlet weak var messageLabel: UILabel!
-   @IBOutlet weak var avatarImageView: UIImageView!
+   @IBOutlet weak var rightImageView: UIImageView!
+   @IBOutlet weak var leftImageView: UIImageView!
    
    
    // MARK: - Init
@@ -28,5 +29,21 @@ class MessageCell: UITableViewCell {
    // MARK: - Helper Methods
    private func setupCell() {
       messageBubble.layer.cornerRadius = messageBubble.frame.size.height / 5
+   }
+   
+   public func updateMessageCell(isMyMessage: Bool, content: String) {
+      if isMyMessage {
+         leftImageView.isHidden = true
+         rightImageView.isHidden = false
+         messageBubble.backgroundColor = UIColor(named: K.BrandColors.lightPurple)
+         messageLabel.textColor = UIColor(named: K.BrandColors.purple)
+      } else {
+         leftImageView.isHidden = false
+         rightImageView.isHidden = true
+         messageBubble.backgroundColor = UIColor(named: K.BrandColors.purple)
+         messageLabel.textColor = UIColor(named: K.BrandColors.lightPurple)
+      }
+      
+      messageLabel.text = content
    }
 }

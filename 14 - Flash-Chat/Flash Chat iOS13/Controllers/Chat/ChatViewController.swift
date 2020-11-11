@@ -12,6 +12,8 @@ class ChatViewController: UIViewController {
       didSet {
          DispatchQueue.main.async {
             self.tableView.reloadData()
+            let indexPath = IndexPath(row: self.messages.count-1, section: 0)
+            self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
          }
       }
    }
@@ -56,20 +58,15 @@ class ChatViewController: UIViewController {
    
    // MARK: - IBActions
    @IBAction func sendPressed(_ sender: UIButton) {
-      guard let sender = UserManager.shared.email,
-            let messageBody = messageTextfield.text
-      else {
-         return
-      }
+      guard let sender = UserManager.shared.email, let messageBody = messageTextfield.text else { return }
       
       let message = [K.FStore.senderField: sender, K.FStore.bodyField: messageBody, K.FStore.dateField: Date().timeIntervalSince1970] as [String : Any]
-      db.collection(K.FStore.collectionName).addDocument(data: message) { (error) in
-         if let error = error {
-            print("There was an error in saving data to firestore: \(error.localizedDescription)")
-         } else {
-            print("Successfully saved data.")
-         }
+      db.collection(K.FStore.collectionName).addDocument(data: message) { [weak self] (error) in
+         guard let error = error else { return }
+         print("There was an error in saving data to firestore: \(error.localizedDescription)")
       }
+      
+      self.messageTextfield.text = ""
    }
    
    @IBAction func logOutButtonPressed(_ sender: UIBarButtonItem) {
@@ -94,13 +91,13 @@ extension ChatViewController: UITableViewDataSource {
    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
       let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) as! MessageCell
       let message = messages[indexPath.row]
-      cell.messageLabel.text = message.body
       
+      let isMyMessage = message.sender == UserManager.shared.email
+      cell.updateMessageCell(isMyMessage: isMyMessage, content: message.body)
+         
       return cell
    }
 }
 
 // MARK: - Table View Delegate
-extension ChatViewController: UITableViewDelegate {
-   
-}
+extension ChatViewController: UITableViewDelegate { }
